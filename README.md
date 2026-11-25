@@ -1,4 +1,4 @@
-# MiniBoot-Linux — Agent Instructions
+# MiniBoot-Linux
 
 ## Project Purpose
 
