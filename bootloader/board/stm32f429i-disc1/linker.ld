@@ -23,6 +23,12 @@ SECTIONS
     {
         . = ALIGN(4);
         *(.text*)
+        . = ALIGN(4);
+    } > FLASH
+
+    .rodata :
+    {
+        . = ALIGN(4);
         *(.rodata*)
         . = ALIGN(4);
     } > FLASH
@@ -53,4 +59,16 @@ SECTIONS
 
     ASSERT(__ebss <= __stack_limit,
         "ERROR: Bootloader SRAM data overlaps reserved stack!")
+
+    ASSERT((__sidata % 4) == 0,
+        "ERROR: .data LMA is not word-aligned!")
+
+    ASSERT((__sdata % 4) == 0,
+        "ERROR: .data VMA is not word-aligned!")
+
+    ASSERT(((__edata - __sdata) % 4) == 0,
+        "ERROR: .data size is not word-aligned!")
+
+    ASSERT(((__ebss - __sbss) % 4) == 0,
+        "ERROR: .bss size is not word-aligned!")
 }

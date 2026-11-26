@@ -1,14 +1,14 @@
 TOOLCHAIN_PATH := /workspace/toolchain/arm-gnu-toolchain-13.3.rel1-x86_64-arm-none-eabi
-CROSS_COMPILER := $(TOOLCHAIN_PATH)/bin/arm-none-eabi-
+CROSS_COMPILE  := $(TOOLCHAIN_PATH)/bin/arm-none-eabi-
 
-CC       := $(CROSS_COMPILER)gcc
-CXX      := $(CROSS_COMPILER)g++
-AS       := $(CROSS_COMPILER)as
-LD       := $(CROSS_COMPILER)ld
-OBJCOPY  := $(CROSS_COMPILER)objcopy
-OBJDUMP  := $(CROSS_COMPILER)objdump
-SIZE     := $(CROSS_COMPILER)size
-READELF  := $(CROSS_COMPILER)readelf
+CC       := $(CROSS_COMPILE)gcc
+CXX      := $(CROSS_COMPILE)g++
+AS       := $(CROSS_COMPILE)as
+LD       := $(CROSS_COMPILE)ld
+OBJCOPY  := $(CROSS_COMPILE)objcopy
+OBJDUMP  := $(CROSS_COMPILE)objdump
+SIZE     := $(CROSS_COMPILE)size
+READELF  := $(CROSS_COMPILE)readelf
 PYTHON   := python3
 
 
@@ -34,13 +34,14 @@ BL_OBJS := $(patsubst %,$(BUILD)/%.o,$(basename $(BL_SRCS)))
 
 BL_INCLUDES := -I./ -I$(BL_DIR)/include
 
+CPU_FLAGS := -mcpu=cortex-m4 -mthumb -mfloat-abi=soft
 
-CFLAGS  = -mcpu=cortex-m4 -mthumb -O0 -g \
+CFLAGS  = $(CPU_FLAGS) -O0 -g3 \
 			-Wall -Wextra -Wmissing-prototypes \
 			-ffreestanding -fno-builtin -ffunction-sections -fdata-sections \
 			-MMD -MP
 
-LDFLAGS = -mcpu=cortex-m4 -mthumb -nostdlib \
+LDFLAGS = $(CPU_FLAGS) -nostdlib \
 			-Wl,--gc-sections -Wl,--fatal-warnings -Wl,-Map=$(BL_TARGET).map
 
 

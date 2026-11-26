@@ -51,21 +51,29 @@ vector_table:
 reset_handler:
     ldr sp, =__estack /* set stack pointer */
 
+/* SCB->VTOR = vector_table */
+    ldr r0, =0xE000ED08
+    ldr r1, =vector_table
+    str r1, [r0]
+
+    dsb
+    isb
+
 /* Copy the data segment initializers from flash to SRAM */
     ldr r0, =__sdata
     ldr r1, =__edata
     ldr r2, =__sidata
-    movs r3, #0
-    b _loop_cp_data_init
 
-_cp_data_init:
-    ldr r4, [r2, r3]
-    str r4, [r0, r3]
-    adds r3, r3, #4
-_loop_cp_data_init:
-    adds r4, r0, r3
-    cmp r4, r1
-    bcc _cp_data_init
+.Lcopy_data:
+    cmp r0, r1
+    bhs .Lcopy_data_done
+
+    ldr r3, [r2], #4
+    str r3, [r0], #4
+
+    b .Lcopy_data
+
+.Lcopy_data_done:
 
 /* Zero fill the bss segment. */
     ldr r2, =__sbss
