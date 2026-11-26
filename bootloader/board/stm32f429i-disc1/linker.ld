@@ -1,0 +1,56 @@
+ENTRY(reset_handler)
+
+MEMORY
+{
+    FLASH (rx)  : ORIGIN = 0x08000000, LENGTH = 128K
+    SRAM  (rwx) : ORIGIN = 0x20000000, LENGTH = 192K
+}
+
+__stack_size = 4K;
+
+__estack = ORIGIN(SRAM) + LENGTH(SRAM);
+__stack_limit = __estack - __stack_size;
+
+SECTIONS
+{
+    .isr_vector :
+    {
+        . = ALIGN(512);
+        KEEP(*(.isr_vector))
+    } > FLASH
+
+    .text :
+    {
+        . = ALIGN(4);
+        *(.text*)
+        *(.rodata*)
+        . = ALIGN(4);
+    } > FLASH
+
+    .data :
+    {
+        . = ALIGN(4);
+        __sdata = .;
+        *(.data*)
+        . = ALIGN(4);
+        __edata = .;
+    } > SRAM AT > FLASH
+
+    __sidata = LOADADDR(.data);
+
+    .bss (NOLOAD) :
+    {
+        . = ALIGN(4);
+        __sbss = .;
+        *(.bss*)
+        *(COMMON)
+        . = ALIGN(4);
+        __ebss = .;
+    } > SRAM
+
+    ASSERT(ADDR(.isr_vector) == ORIGIN(FLASH),
+        "ERROR: Bootloader vector table must start at the flash base!")
+
+    ASSERT(__ebss <= __stack_limit,
+        "ERROR: Bootloader SRAM data overlaps reserved stack!")
+}
